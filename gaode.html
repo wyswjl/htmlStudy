@@ -1,0 +1,159 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>轨迹回放</title>
+    <link href="styles/NewGlobal.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/gaode_main1119.css" />
+    <link rel="stylesheet" type="text/css" href="css/ui.css">
+<!--     <link type="text/css" rel="stylesheet" href="css/sale-list.css" /> -->
+    <link rel="stylesheet" href="css/demo-center.css"/>
+    <script type="text/javascript"
+    src="jquery/1.9.1/jquery.min.js"></script>
+    <style>
+        html, body, #container {
+            height: 98%;
+            width: 100%;
+        }
+ 
+        .input-card .btn{
+            margin-right: 1.2rem;
+            width: 9rem;
+        }
+ 
+        .input-card .btn:last-child{
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="input-card" style="margin-bottom:45px">
+    <div style="" align="center"><span id="tsid" style="font-size: 14px"></span></div>
+    <h4>轨迹回放控制</h4>
+    <div class="input-item">
+        <input type="button" class="btn" style="width: 25%" value="今天" id="start1" οnclick="gettrack('1')"/>
+        <input type="button" class="btn" style="width: 25%" value="昨天" id="start2" οnclick="gettrack('2')"/>
+        <input type="button" class="btn" style="width: 25%" value="前天" id="start3" οnclick="gettrack('3')"/>
+        <input type="button" class="btn" value="开始回放" id="start" οnclick="startAnimation()"/>
+        <input type="button" class="btn" value="暂停回放" id="pause" οnclick="pauseAnimation()"/>
+    </div>
+</div>
+<div class="aui-l-content"  style="width:100%;margin: 0 auto; bottom: 0px; position: fixed;">
+    <div class="aui-menu-list aui-menu-list-clear">
+    <ul>
+    <li class="b-line">
+                                <a href="new_index.html">
+                                    <div class="aui-icon"><img src="images/icon-home/my-in2.png"></div>
+                                    <h3>返回主页</h3>
+                                    <div class="aui-time"><i class="aui-jump"></i></div>
+                                </a>
+    </li>
+    </ul>
+    </div>
+    </div>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.10&key=9543bd6de0ddcf142ff713f178ccaf6"></script>
+<script>
+var marker, lineArr=new Array(),tishiArr=new Array();
+$(function(){
+	var h = document.documentElement.clientHeight || document.body.clientHeight;
+	$("#container").css("height", h-52-77-12-50);
+	tomap();
+})
+    
+ 
+ 
+ //lineArr数组为历史回顾的GPS点
+    function tomap(){
+           var map = new AMap.Map("container", {
+                   resizeEnable: true,
+                   center: [104.04, 30.40],
+                   zoom: 14
+               });
+               map.clearMap();  // 清除地图覆盖物
+               marker = new AMap.Marker({
+                   map: map,
+                   position: lineArr[0],
+                   icon: "images/car.png",
+                   offset: new AMap.Pixel(-26, -13),
+                   autoRotation: true,
+                   angle:-90,
+               });
+ 
+               // 绘制轨迹
+               var polyline = new AMap.Polyline({
+                   map: map,
+                   path: lineArr,
+                   showDir:true,
+                   strokeColor: "#28F",  //线颜色
+                   // strokeOpacity: 1,     //线透明度
+                   strokeWeight: 6,      //线宽
+                   // strokeStyle: "solid"  //线样式
+               });
+ 
+               var passedPolyline = new AMap.Polyline({
+                   map: map,
+                   // path: lineArr,
+                   strokeColor: "#AF5",  //线颜色
+                   // strokeOpacity: 1,     //线透明度
+                   strokeWeight: 6,      //线宽
+                   // strokeStyle: "solid"  //线样式
+               });
+ 
+ 
+               marker.on('moving', function (e) {
+                   passedPolyline.setPath(e.passedPath);
+               });
+ 
+               map.setFitView();
+    }
+    
+    
+    var i=0;
+    var t1;
+    var k=0;
+    function addinfo(){
+	    $("#tsid").html(tishiArr[i]);
+	    i=i+1;
+	    if(i>tishiArr.length){
+           clearInterval(t1);
+	       i=0;
+        }
+    }
+//开始
+    function startAnimation () {
+    	if(lineArr.length>0){
+	    	if(k>0){
+	    		marker.resumeMove();
+	    	}else{
+		        marker.moveAlong(lineArr, 350);
+	    	}
+	        t1=window.setInterval(addinfo, 500);
+    	}
+    }
+//继续
+    function pauseAnimation () {
+    	k=1;
+    	clearInterval(t1);
+    	if(lineArr.length>0){
+	        marker.pauseMove();
+    	}
+    }
+//
+    function resumeAnimation () {
+        marker.resumeMove();
+    }
+ //停止
+    function stopAnimation () {
+    	if(lineArr.length>0){
+	        marker.stopMove();
+    	}
+    }
+   
+</script>
+</body>
+
+</html>
